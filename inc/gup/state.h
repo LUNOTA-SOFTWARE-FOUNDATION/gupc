@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include "gup/token.h"
 #include "gup/tokbuf.h"
+#include "gup/ptrbox.h"
 
 /*
  * Represents the compiler state
@@ -19,6 +20,7 @@
  * @putback:    Lexer putback buffer
  * @last_tok:   Last token
  * @tokbuf:     Parser token buffer
+ * @ptrbox:     Global pointer box
  */
 struct gup_state {
     int in_fd;
@@ -27,6 +29,7 @@ struct gup_state {
     char putback;
     struct token last_tok;
     struct tokbuf tokbuf;
+    struct ptrbox ptrbox;
 };
 
 /*
