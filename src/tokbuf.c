@@ -41,7 +41,7 @@ tokbuf_push(struct tokbuf *buf, struct token *tok)
     /* Push and grow as needed */
     buf->ring[buf->head++] = *tok;
     if (buf->head >= buf->entry_cap) {
-        buf->entry_cap += TOKBUF_GROW_SIZE + sizeof(struct token);
+        buf->entry_cap += (TOKBUF_GROW_SIZE * sizeof(struct token));
         buf->ring = realloc(buf->ring, buf->entry_cap);
     }
 
