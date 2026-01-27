@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "gup/state.h"
+#include "gup/parser.h"
 
 #define GUP_VERSION "0.0.1"
 
@@ -50,6 +51,12 @@ compile(const char *path)
     if (gup_state_init(&state, path, out_path) < 0) {
         printf("fatal: failed to initialize gup state\n");
         perror("gup_state_init");
+        return;
+    }
+
+    /* Pass 0 */
+    if (gup_parse(&state) < 0) {
+        gup_state_destroy(&state);
         return;
     }
 

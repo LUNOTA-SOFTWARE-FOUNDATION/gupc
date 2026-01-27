@@ -7,6 +7,7 @@
 #define GUP_STATE_H 1
 
 #include <stdint.h>
+#include "gup/token.h"
 
 /*
  * Represents the compiler state
@@ -14,11 +15,13 @@
  * @in_fd:      Input file descriptor
  * @cur_pass:   Current compiler pass (0-based)
  * @line_num:   Current line number
+ * @last_tok:   Last token
  */
 struct gup_state {
     int in_fd;
     uint8_t cur_pass;
     size_t line_num;
+    struct token last_tok;
 };
 
 /*
