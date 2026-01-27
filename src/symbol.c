@@ -33,11 +33,6 @@ symbol_new(struct symbol_table *table, const char *name, symbol_type_t type,
         return -1;
     }
 
-    if (res == NULL) {
-        errno = -EINVAL;
-        return -1;
-    }
-
     symbol = malloc(sizeof(*symbol));
     if (symbol == NULL) {
         errno = -ENOMEM;
@@ -53,6 +48,11 @@ symbol_new(struct symbol_table *table, const char *name, symbol_type_t type,
 
     symbol->id = table->symbol_count++;
     TAILQ_INSERT_TAIL(&table->entries, symbol, link);
+
+    if (res != NULL) {
+        *res = symbol;
+    }
+
     return 0;
 }
 
