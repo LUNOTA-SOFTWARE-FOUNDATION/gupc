@@ -65,28 +65,44 @@ parse_preprocess(struct gup_state *state, struct token *tok)
     return 0;
 }
 
-int
-gup_parse(struct gup_state *state)
+/*
+ * Begin curating tokens for the preprocessor stage
+ *
+ * @state: Compiler state
+ *
+ * Returns zero on success
+ */
+static int
+parse_curate(struct gup_state *state)
 {
-    int error = 0;
-
-    if (state == NULL) {
-        return -1;
-    }
+    int error;
 
     while (lexer_scan(state, &state->last_tok) == 0) {
-        switch (state->cur_pass) {
-        case 0:
-            /* Preprocessor pass */
-            error = parse_preprocess(state, &state->last_tok);
-            break;
-        }
-
+        error = parse_preprocess(state, &state->last_tok);
         if (error != 0) {
             return -1;
         }
     }
 
-    ++state->cur_pass;
     return 0;
+}
+
+int
+gup_parse(struct gup_state *state)
+{
+    int retval = 0;
+
+    if (state == NULL) {
+        return -1;
+    }
+
+    switch (state->cur_pass) {
+    case 0:
+        /* Preprocessor pass */
+        retval = parse_curate(state);
+        break;
+    }
+
+    ++state->cur_pass;
+    return retval;
 }
