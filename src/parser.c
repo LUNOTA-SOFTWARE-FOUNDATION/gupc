@@ -55,7 +55,9 @@ parse_preprocess(struct gup_state *state, struct token *tok)
         break;
     default:
         printf("got token %s\n", tokstr(&state->last_tok));
-        tokbuf_push(&state->tokbuf, tok);
+        if (tokbuf_push(&state->tokbuf, tok) < 0)
+            return -1;
+
         break;
     }
 
@@ -65,14 +67,22 @@ parse_preprocess(struct gup_state *state, struct token *tok)
 int
 gup_parse(struct gup_state *state)
 {
+    int error = 0;
+
     if (state == NULL) {
         return -1;
     }
 
     while (lexer_scan(state, &state->last_tok) == 0) {
-        if (state->cur_pass == 0) {
-            parse_preprocess(state, &state->last_tok);
-            continue;
+        switch (state->cur_pass) {
+        case 0:
+            /* Preprocessor pass */
+            error = parse_preprocess(state, &state->last_tok);
+            break;
+        }
+
+        if (error != 0) {
+            return -1;
         }
     }
 
