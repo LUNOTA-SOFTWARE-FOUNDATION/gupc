@@ -32,6 +32,23 @@ lexer_is_ws(char c)
 }
 
 /*
+ * Put a character in the lexer putback buffer to be
+ * grabbed later
+ *
+ * @state:  Compiler state
+ * @c:      Character to putback
+ */
+static inline void
+lexer_putback(struct gup_state *state, char c)
+{
+    if (state == NULL) {
+        return;
+    }
+
+    state->putback = c;
+}
+
+/*
  * Consume a single character from the input source file
  *
  * @state:      Compiler state
@@ -47,6 +64,19 @@ lexer_consume(struct gup_state *state, bool accept_ws)
 
     if (state == NULL) {
         return '\0';
+    }
+
+    /*
+     * If there is anything that we can accept in the
+     * putback buffer, take it. Otherwise skip it and
+     * start looking for more characters.
+     */
+    if ((c = state->putback) != '\0') {
+        state->putback = '\0';
+        if (accept_ws && lexer_is_ws(c))
+            return c;
+        if (!accept_ws && !lexer_is_ws(c))
+            return c;
     }
 
     /*
