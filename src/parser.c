@@ -38,6 +38,30 @@ static const char *toktab[] = {
     [TT_LTE]      = qtok("<=")
 };
 
+/*
+ * Used during the preprocessor stage to take in tokens
+ * and look for directives
+ */
+static int
+parse_preprocess(struct gup_state *state, struct token *tok)
+{
+    if (state == NULL || tok == NULL) {
+        return -1;
+    }
+
+    switch (tok->type) {
+    case TT_DEFINE:
+        printf("got '#define'\n");
+        break;
+    default:
+        printf("got token %s\n", tokstr(&state->last_tok));
+        tokbuf_push(&state->tokbuf, tok);
+        break;
+    }
+
+    return 0;
+}
+
 int
 gup_parse(struct gup_state *state)
 {
@@ -46,8 +70,12 @@ gup_parse(struct gup_state *state)
     }
 
     while (lexer_scan(state, &state->last_tok) == 0) {
-        printf("got token %s\n", tokstr(&state->last_tok));
+        if (state->cur_pass == 0) {
+            parse_preprocess(state, &state->last_tok);
+            continue;
+        }
     }
 
+    ++state->cur_pass;
     return 0;
 }
