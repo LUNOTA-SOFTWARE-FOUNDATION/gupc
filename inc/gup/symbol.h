@@ -28,13 +28,15 @@ typedef enum {
 /*
  * Represents a program symbol
  *
- * @name: Symbol name
- * @id:   Symbol ID
- * @link: Queue link
+ * @name:       Symbol name
+ * @id:         Symbol ID
+ * @v_const:    Constant value associated with symbol
+ * @link:       Queue link
  */
 struct symbol {
     char *name;
     symid_t id;
+    size_t v_const;
     TAILQ_ENTRY(symbol) link;
 };
 
