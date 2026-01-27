@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 #include <errno.h>
 #include <unistd.h>
@@ -118,9 +119,15 @@ lexer_scan_ident(struct gup_state *state, int lc, struct token *res)
         return -1;
     }
 
-    if (!isalpha(lc) && lc != '_') {
-        errno = -EINVAL;
-        return -1;
+    switch (lc) {
+    case '_':
+    case '#':
+        break;
+    default:
+        if (!isalpha(lc)) {
+            errno = -EINVAL;
+            return -1;
+        }
     }
 
     bufcap = 8;
@@ -155,6 +162,38 @@ lexer_scan_ident(struct gup_state *state, int lc, struct token *res)
     res->s = ptrbox_strdup(&state->ptrbox, buf);
     free(buf);
     return 0;
+}
+
+/*
+ * Check if an identifier token is actually a keyword
+ * and override it if so
+ *
+ * @tok: Token to check
+ */
+static int
+lexer_check_kw(struct token *tok)
+{
+    if (tok == NULL) {
+        errno = -EINVAL;
+        return -1;
+    }
+
+    if (tok->type != TT_IDENT) {
+        errno = -EINVAL;
+        return -1;
+    }
+
+    switch (*tok->s) {
+    case '#':
+        if (strcmp(tok->s, "#define") == 0) {
+            tok->type = TT_DEFINE;
+            return -1;
+        }
+
+        break;
+    }
+
+    return -1;
 }
 
 int
@@ -211,6 +250,7 @@ lexer_scan(struct gup_state *state, struct token *res)
         return 0;
     default:
         if (lexer_scan_ident(state, c, res) == 0) {
+            lexer_check_kw(res);
             return 0;
         }
 
