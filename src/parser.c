@@ -32,7 +32,9 @@ static const char *toktab[] = {
     [TT_STAR]     = qtok("*"),
     [TT_SLASH]    = qtok("/"),
     [TT_GT]       = qtok(">"),
-    [TT_LT]       = qtok("<")
+    [TT_LT]       = qtok("<"),
+    [TT_GTE]      = qtok(">="),
+    [TT_LTE]      = qtok("<=")
 };
 
 int
