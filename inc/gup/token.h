@@ -14,6 +14,7 @@
  */
 typedef enum {
     TT_NONE,        /* <NONE> */
+    TT_IDENT,       /* <IDENT> */
     TT_DEFINE,      /* '#define' */
     TT_PLUS,        /* '+' */
     TT_MINUS,       /* '-' */
@@ -29,6 +30,7 @@ struct token {
     tt_t type;
     union {
         char c;
+        char *s;
     };
 };
 

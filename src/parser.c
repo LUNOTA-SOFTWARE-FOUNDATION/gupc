@@ -27,6 +27,7 @@
 
 static const char *toktab[] = {
     [TT_NONE]     = symtok("none"),
+    [TT_IDENT]    = symtok("ident"),
     [TT_DEFINE]   = qtok("#define"),
     [TT_PLUS]     = qtok("+"),
     [TT_MINUS]    = qtok("-"),

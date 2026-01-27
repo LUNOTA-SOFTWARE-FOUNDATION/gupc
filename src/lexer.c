@@ -5,10 +5,13 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <ctype.h>
 #include <errno.h>
 #include <unistd.h>
 #include "gup/lexer.h"
 #include "gup/state.h"
+#include "gup/ptrbox.h"
 
 /*
  * Returns true if the given input character counts
@@ -95,6 +98,65 @@ lexer_consume(struct gup_state *state, bool accept_ws)
     return '\0';
 }
 
+/*
+ * Scan for an identifiers
+ *
+ * @state: Compiler state
+ * @lc:    Last character
+ * @res:   Token result
+ *
+ * Returns zero on success
+ */
+static int
+lexer_scan_ident(struct gup_state *state, int lc, struct token *res)
+{
+    char c, *buf;
+    size_t bufcap, bufsz;
+
+    if (state == NULL || res == NULL) {
+        errno = -EINVAL;
+        return -1;
+    }
+
+    if (!isalpha(lc) && lc != '_') {
+        errno = -EINVAL;
+        return -1;
+    }
+
+    bufcap = 8;
+    bufsz = 0;
+    if ((buf = malloc(bufcap)) == NULL) {
+        errno = -ENOMEM;
+        return -1;
+    }
+
+    buf[bufsz++] = lc;
+    for (;;) {
+        c = lexer_consume(state, true);
+        if (!isalnum(c) && c != '_') {
+            lexer_putback(state, c);
+            buf[bufsz] = '\0';
+            break;
+        }
+
+        buf[bufsz++] = c;
+        if (bufsz >= bufcap - 1) {
+            bufcap += 8;
+            buf = realloc(buf, bufcap);
+        }
+
+        if (buf == NULL) {
+            errno = -ENOMEM;
+            return -1;
+        }
+    }
+
+    res->type = TT_IDENT;
+    res->s = ptrbox_strdup(&state->ptrbox, buf);
+    free(buf);
+    return 0;
+}
+
 int
 lexer_scan(struct gup_state *state, struct token *res)
 {
@@ -148,6 +210,10 @@ lexer_scan(struct gup_state *state, struct token *res)
         res->type = TT_LTE;
         return 0;
     default:
+        if (lexer_scan_ident(state, c, res) == 0) {
+            return 0;
+        }
+
         break;
     }
 
