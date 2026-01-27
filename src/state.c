@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include "gup/state.h"
+#include "gup/symbol.h"
 
 int
 gup_state_init(struct gup_state *res, const char *in_path, const char *out_path)
@@ -30,8 +31,13 @@ gup_state_init(struct gup_state *res, const char *in_path, const char *out_path)
         return -1;
     }
 
+    if (symbol_table_init(&res->symtab) < 0) {
+        tokbuf_destroy(&res->tokbuf);
+    }
+
     if (ptrbox_init(&res->ptrbox) < 0) {
         tokbuf_destroy(&res->tokbuf);
+        symbol_table_destroy(&res->symtab);
         return -1;
     }
 
@@ -39,6 +45,7 @@ gup_state_init(struct gup_state *res, const char *in_path, const char *out_path)
     if (res->in_fd < 0) {
         tokbuf_destroy(&res->tokbuf);
         ptrbox_destroy(&res->ptrbox);
+        symbol_table_destroy(&res->symtab);
         return -1;
     }
 
@@ -56,4 +63,5 @@ gup_state_destroy(struct gup_state *state)
     close(state->in_fd);
     tokbuf_destroy(&state->tokbuf);
     ptrbox_destroy(&state->ptrbox);
+    symbol_table_destroy(&state->symtab);
 }

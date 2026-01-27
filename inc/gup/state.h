@@ -10,6 +10,7 @@
 #include "gup/token.h"
 #include "gup/tokbuf.h"
 #include "gup/ptrbox.h"
+#include "gup/symbol.h"
 
 /*
  * Represents the compiler state
@@ -21,6 +22,7 @@
  * @last_tok:   Last token
  * @tokbuf:     Parser token buffer
  * @ptrbox:     Global pointer box
+ * @symtab:     Global symbol table
  */
 struct gup_state {
     int in_fd;
@@ -30,6 +32,7 @@ struct gup_state {
     struct token last_tok;
     struct tokbuf tokbuf;
     struct ptrbox ptrbox;
+    struct symbol_table symtab;
 };
 
 /*
