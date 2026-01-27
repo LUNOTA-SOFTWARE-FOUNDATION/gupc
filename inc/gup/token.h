@@ -18,6 +18,8 @@ typedef enum {
     TT_MINUS,       /* '-' */
     TT_STAR,        /* '*' */
     TT_SLASH,       /* '/' */
+    TT_GT,          /* '>' */
+    TT_LT,          /* '<' */
 } tt_t;
 
 struct token {

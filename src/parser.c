@@ -26,11 +26,13 @@
     "[" str "]"
 
 static const char *toktab[] = {
-    [TT_NONE]   = symtok("none"),
-    [TT_PLUS]   = qtok("+"),
-    [TT_MINUS]  = qtok("-"),
-    [TT_STAR]   = qtok("*"),
-    [TT_SLASH]  = qtok("/")
+    [TT_NONE]     = symtok("none"),
+    [TT_PLUS]     = qtok("+"),
+    [TT_MINUS]    = qtok("-"),
+    [TT_STAR]     = qtok("*"),
+    [TT_SLASH]    = qtok("/"),
+    [TT_GT]       = qtok(">"),
+    [TT_LT]       = qtok("<")
 };
 
 int

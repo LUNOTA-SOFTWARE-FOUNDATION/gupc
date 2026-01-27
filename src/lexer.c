@@ -97,6 +97,14 @@ lexer_scan(struct gup_state *state, struct token *res)
         res->type = TT_SLASH;
         res->c = c;
         return 0;
+    case '>':
+        res->type = TT_GT;
+        res->c = c;
+        return 0;
+    case '<':
+        res->type = TT_LT;
+        res->c = c;
+        return 0;
     default:
         break;
     }
