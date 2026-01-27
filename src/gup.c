@@ -6,9 +6,13 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 #include "gup/state.h"
 
 #define GUP_VERSION "0.0.1"
+
+/* Output file path */
+static const char *out_path = "a.out";
 
 static void
 help(void)
@@ -18,6 +22,7 @@ help(void)
         "---------------------------\n"
         "[-h]   Display this help menu\n"
         "[-v]   Display the gup version\n"
+        "[-o]   Output file path\n"
     );
 }
 
@@ -33,6 +38,24 @@ version(void)
     );
 }
 
+static void
+compile(const char *path)
+{
+    struct gup_state state;
+
+    if (path == NULL) {
+        return;
+    }
+
+    if (gup_state_init(&state, path, out_path) < 0) {
+        printf("fatal: failed to initialize gup state\n");
+        perror("gup_state_init");
+        return;
+    }
+
+    gup_state_destroy(&state);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -44,7 +67,7 @@ main(int argc, char **argv)
         return -1;
     }
 
-    while ((opt = getopt(argc, argv, "hv")) != -1) {
+    while ((opt = getopt(argc, argv, "hvo:")) != -1) {
         switch (opt) {
         case 'h':
             help();
@@ -52,7 +75,14 @@ main(int argc, char **argv)
         case 'v':
             version();
             return -1;
+        case 'o':
+            out_path = strdup(optarg);
+            break;
         }
+    }
+
+    while (optind < argc) {
+        compile(argv[optind++]);
     }
 
     return 0;
