@@ -57,4 +57,11 @@ int tokbuf_push(struct tokbuf *buf, struct token *tok);
  */
 struct token *tokbuf_pop(struct tokbuf *buf);
 
+/*
+ * Destroy a token buffer
+ *
+ * @buf: Token buffer to destroy
+ */
+void tokbuf_destroy(struct tokbuf *buf);
+
 #endif  /* !GUP_TOKBUF_H */

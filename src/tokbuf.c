@@ -66,3 +66,14 @@ tokbuf_pop(struct tokbuf *buf)
 
     return &buf->ring[buf->tail++];
 }
+
+void
+tokbuf_destroy(struct tokbuf *buf)
+{
+    if (buf == NULL) {
+        return;
+    }
+
+    free(buf->ring);
+    buf->ring = NULL;
+}

@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -24,8 +25,14 @@ gup_state_init(struct gup_state *res, const char *in_path, const char *out_path)
     }
 
     memset(res, 0, sizeof(*res));
+    if (tokbuf_init(&res->tokbuf) < 0) {
+        perror("tokbuf_init");
+        return -1;
+    }
+
     res->in_fd = open(in_path, O_RDONLY);
     if (res->in_fd < 0) {
+        tokbuf_destroy(&res->tokbuf);
         return -1;
     }
 
@@ -41,4 +48,5 @@ gup_state_destroy(struct gup_state *state)
     }
 
     close(state->in_fd);
+    tokbuf_destroy(&state->tokbuf);
 }

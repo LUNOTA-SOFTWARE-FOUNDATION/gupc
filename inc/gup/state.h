@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 #include "gup/token.h"
+#include "gup/tokbuf.h"
 
 /*
  * Represents the compiler state
@@ -17,6 +18,7 @@
  * @line_num:   Current line number
  * @putback:    Lexer putback buffer
  * @last_tok:   Last token
+ * @tokbuf:     Parser token buffer
  */
 struct gup_state {
     int in_fd;
@@ -24,6 +26,7 @@ struct gup_state {
     size_t line_num;
     char putback;
     struct token last_tok;
+    struct tokbuf tokbuf;
 };
 
 /*
