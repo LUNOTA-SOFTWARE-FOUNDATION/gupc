@@ -46,7 +46,19 @@ symbol_new(struct symbol_table *table, const char *name, symbol_type_t type,
         return -1;
     }
 
+    /*
+     * If this is a macro symbol, allocate a token buffer to
+     * be associated with it.
+     */
+    if (type == SYMBOL_MACRO) {
+        if (tokbuf_init(&symbol->mactok) < 0) {
+            free(symbol);
+            return -1;
+        }
+    }
+
     symbol->id = table->symbol_count++;
+    symbol->type = type;
     TAILQ_INSERT_TAIL(&table->entries, symbol, link);
 
     if (res != NULL) {
@@ -68,6 +80,10 @@ symbol_table_destroy(struct symbol_table *table)
     symbol = TAILQ_FIRST(&table->entries);
     while (symbol != NULL) {
         TAILQ_REMOVE(&table->entries, symbol, link);
+        if (symbol->type == SYMBOL_MACRO) {
+            tokbuf_destroy(&symbol->mactok);
+        }
+
         free(symbol->name);
         free(symbol);
         symbol = TAILQ_FIRST(&table->entries);

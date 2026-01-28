@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "gup/tokbuf.h"
 
 /* Symbol ID */
 typedef size_t symid_t;
@@ -29,14 +30,16 @@ typedef enum {
  * Represents a program symbol
  *
  * @name:       Symbol name
+ * @type:       Symbol type
  * @id:         Symbol ID
- * @v_const:    Constant value associated with symbol
+ * @mactok:     Macro tokens
  * @link:       Queue link
  */
 struct symbol {
     char *name;
+    symbol_type_t type;
     symid_t id;
-    size_t v_const;
+    struct tokbuf mactok;
     TAILQ_ENTRY(symbol) link;
 };
 
