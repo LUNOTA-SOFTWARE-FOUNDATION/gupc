@@ -107,13 +107,29 @@ parse_scan(struct gup_state *state, struct token *tok)
 static int
 parse_expect(struct gup_state *state, struct token *tok, tt_t what)
 {
+    struct token *popped;
+
     if (state == NULL || tok == NULL) {
         return -1;
     }
 
-    if (parse_scan(state, tok) < 0) {
-        ueof(state);
-        return -1;
+    switch (state->cur_pass) {
+    case 0:
+        if (parse_scan(state, tok) < 0) {
+            ueof(state);
+            return -1;
+        }
+
+        break;
+    case 1:
+        popped = tokbuf_pop(&state->tokbuf);
+        if (popped == NULL) {
+            ueof(state);
+            return -1;
+        }
+
+        *tok = *popped;
+        break;
     }
 
     if (tok->type != what) {
@@ -363,6 +379,55 @@ parse_curate(struct gup_state *state)
     return 0;
 }
 
+static int
+parse_proc(struct gup_state *state, struct token *tok)
+{
+    if (state == NULL || tok == NULL) {
+        return -1;
+    }
+
+    if (tok->type != TT_PROC) {
+        return -1;
+    }
+
+    /* EXPECT <IDENT> */
+    if (parse_expect(state, tok, TT_IDENT) < 0) {
+        return -1;
+    }
+
+    /* EXPECT '(' */
+    if (parse_expect(state, tok, TT_LPAREN) < 0) {
+        return -1;
+    }
+
+    /* EXPECT 'void' : TODO: ALLOW ARGUMENTS */
+    if (parse_expect(state, tok, TT_VOID) < 0) {
+        return -1;
+    }
+
+    /* EXPECT ')' */
+    if (parse_expect(state, tok, TT_RPAREN) < 0) {
+        return -1;
+    }
+
+    /* EXPECT '->' */
+    if (parse_expect(state, tok, TT_ARROW) < 0) {
+        return -1;
+    }
+
+    /* EXPECT 'void' : TODO: ALLOW DIFFERENT TYPES */
+    if (parse_expect(state, tok, TT_VOID) < 0) {
+        return -1;
+    }
+
+    /* EXPECT ';' : TODO: ALLOW BODY */
+    if (parse_expect(state, tok, TT_SEMI) < 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
 /*
  * Begin parsing tokens
  *
@@ -378,7 +443,20 @@ parse_begin(struct gup_state *state, struct token *tok)
         return -1;
     }
 
-    printf("got token %s\n", tokstr(tok));
+    switch (tok->type) {
+    case TT_PROC:
+        if (parse_proc(state, tok) < 0) {
+            return -1;
+        }
+
+        break;
+    case TT_PUB:
+        /* Modifier */
+        break;
+    default:
+        utok1(state, tok);
+        return -1;
+    }
     return 0;
 }
 

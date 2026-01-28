@@ -1,4 +1,1 @@
-#define FOO
-
-pub proc main(void) -> void {
-}
+proc main(void) -> void;
