@@ -1,0 +1,4 @@
+#ifndef FOO_GUP
+#define FOO_GUP
+
+#endif
