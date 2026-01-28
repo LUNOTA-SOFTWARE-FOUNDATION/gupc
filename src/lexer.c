@@ -307,6 +307,10 @@ lexer_scan(struct gup_state *state, struct token *res)
         res->type = TT_RBRACE;
         res->c = c;
         return 0;
+    case ';':
+        res->type = TT_SEMI;
+        res->c = c;
+        return 0;
     default:
         if (lexer_scan_ident(state, c, res) == 0) {
             lexer_check_kw(res);

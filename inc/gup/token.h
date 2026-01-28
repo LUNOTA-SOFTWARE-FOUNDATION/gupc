@@ -33,6 +33,7 @@ typedef enum {
     TT_RPAREN,      /* ')' */
     TT_LBRACE,      /* '{' */
     TT_RBRACE,      /* '}' */
+    TT_SEMI,        /* ';' */
     TT_PUB,         /* 'pub' */
     TT_PROC,        /* 'proc' */
     TT_VOID,        /* 'void' */
