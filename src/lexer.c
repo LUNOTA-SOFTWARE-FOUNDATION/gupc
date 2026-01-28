@@ -194,6 +194,11 @@ lexer_check_kw(struct token *tok)
             return 0;
         }
 
+        if (strcmp(tok->s, "#ifndef") == 0) {
+            tok->type = TT_IFNDEF;
+            return 0;
+        }
+
         if (strcmp(tok->s, "#endif") == 0) {
             tok->type = TT_ENDIF;
             return 0;

@@ -18,6 +18,7 @@ typedef enum {
     TT_NEWLINE,     /* '\n' */
     TT_DEFINE,      /* '#define' */
     TT_IFDEF,       /* '#ifdef' */
+    TT_IFNDEF,      /* '#ifndef' */
     TT_ENDIF,       /* '#endif' */
     TT_PLUS,        /* '+' */
     TT_MINUS,       /* '-' */
