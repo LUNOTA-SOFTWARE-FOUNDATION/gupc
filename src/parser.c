@@ -8,6 +8,8 @@
 #include <stddef.h>
 #include "gup/lexer.h"
 #include "gup/parser.h"
+#include "gup/trace.h"
+#include "gup/symbol.h"
 
 /* Convert token to string */
 #define tokstr1(type) \
@@ -25,6 +27,21 @@
 #define symtok(str) \
     "[" str "]"
 
+/* Unexpected end-of-file */
+#define ueof(state)                 \
+    trace_error(                    \
+        (state),                    \
+        "unexpected end of file\n"  \
+    )
+
+#define utok(state, exp, got)               \
+    trace_error(                            \
+        (state),                            \
+        "expected %s, got %s instead\n",    \
+        (exp),                              \
+        (got)                               \
+    )
+
 static const char *toktab[] = {
     [TT_NONE]     = symtok("none"),
     [TT_IDENT]    = symtok("ident"),
@@ -40,6 +57,93 @@ static const char *toktab[] = {
 };
 
 /*
+ * Parser-side token scan function
+ *
+ * @state: Compiler state
+ * @tok:   Token result
+ *
+ * Returns zero on success
+ */
+static int
+parse_scan(struct gup_state *state, struct token *tok)
+{
+    if (state == NULL || tok == NULL) {
+        return -1;
+    }
+
+    return lexer_scan(state, tok);
+}
+
+/*
+ * Assert that the next token is of a specific type
+ *
+ * @state: Compiler state
+ * @tok:   Token result
+ * @what:  Expected token type
+ *
+ * Returns zero on success
+ */
+static int
+parse_expect(struct gup_state *state, struct token *tok, tt_t what)
+{
+    if (state == NULL || tok == NULL) {
+        return -1;
+    }
+
+    if (parse_scan(state, tok) < 0) {
+        ueof(state);
+        return -1;
+    }
+
+    if (tok->type != what) {
+        utok(state, tokstr1(what), tokstr(tok));
+        return -1;
+    }
+
+    return 0;
+}
+
+/*
+ * Parse a '#define' preprocessor directive
+ *
+ * @state: Compiler state
+ * @tok:   Token type
+ *
+ * Returns zero on success
+ */
+static int
+parse_define(struct gup_state *state, struct token *tok)
+{
+    int error;
+
+    if (state == NULL || tok == NULL) {
+        return -1;
+    }
+
+    if (tok->type != TT_DEFINE) {
+        return -1;
+    }
+
+    /* EXPECT <IDENT> */
+    if (parse_expect(state, tok, TT_IDENT) < 0) {
+        return -1;
+    }
+
+    error = symbol_new(
+        &state->symtab,
+        tok->s,
+        SYMBOL_MACRO,
+        NULL
+    );
+
+    if (error < 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
+/*
  * Used during the preprocessor stage to take in tokens
  * and look for directives
  */
@@ -52,7 +156,9 @@ parse_preprocess(struct gup_state *state, struct token *tok)
 
     switch (tok->type) {
     case TT_DEFINE:
-        printf("got '#define'\n");
+        if (parse_define(state, tok) < 0) {
+            return -1;
+        }
         break;
     default:
         printf("got token %s\n", tokstr(&state->last_tok));
