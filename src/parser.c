@@ -380,6 +380,14 @@ parse_curate(struct gup_state *state)
     return 0;
 }
 
+/*
+ * Parse a procedure
+ *
+ * @state: Compiler state
+ * @tok:   Last token
+ *
+ * Returns zero on success
+ */
 static int
 parse_proc(struct gup_state *state, struct token *tok)
 {
