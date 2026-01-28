@@ -20,8 +20,8 @@ tokbuf_init(struct tokbuf *res)
     }
 
     memset(res, 0, sizeof(*res));
-    res->entry_cap = TOKBUF_GROW_SIZE * sizeof(struct token);
-    res->ring = malloc(res->entry_cap);
+    res->entry_cap = TOKBUF_GROW_SIZE;
+    res->ring = malloc(res->entry_cap * sizeof(struct token));
     if (res->ring == NULL) {
         errno = -ENOMEM;
         return -1;
@@ -41,8 +41,11 @@ tokbuf_push(struct tokbuf *buf, struct token *tok)
     /* Push and grow as needed */
     buf->ring[buf->head++] = *tok;
     if (buf->head >= buf->entry_cap) {
-        buf->entry_cap += (TOKBUF_GROW_SIZE * sizeof(struct token));
-        buf->ring = realloc(buf->ring, buf->entry_cap);
+        buf->entry_cap += TOKBUF_GROW_SIZE;
+        buf->ring = realloc(
+            buf->ring,
+            buf->entry_cap * sizeof(struct token)
+        );
     }
 
     if (buf->ring == NULL) {
