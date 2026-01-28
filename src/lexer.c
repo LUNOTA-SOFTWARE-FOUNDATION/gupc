@@ -256,6 +256,12 @@ lexer_scan(struct gup_state *state, struct token *res)
     case '-':
         res->type = TT_MINUS;
         res->c = c;
+        if ((c = lexer_consume(state, false)) != '>') {
+            lexer_putback(state, c);
+            return 0;
+        }
+
+        res->type = TT_ARROW;
         return 0;
     case '*':
         res->type = TT_STAR;

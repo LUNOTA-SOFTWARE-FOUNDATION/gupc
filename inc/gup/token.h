@@ -20,6 +20,7 @@ typedef enum {
     TT_IFDEF,       /* '#ifdef' */
     TT_IFNDEF,      /* '#ifndef' */
     TT_ENDIF,       /* '#endif' */
+    TT_ARROW,       /* '->' */
     TT_PLUS,        /* '+' */
     TT_MINUS,       /* '-' */
     TT_STAR,        /* '*' */
