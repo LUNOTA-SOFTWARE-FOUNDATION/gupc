@@ -179,6 +179,65 @@ parse_define(struct gup_state *state, struct token *tok)
 }
 
 /*
+ * Skip to an '#endif' directive
+ *
+ * @state: Compiler state
+ * @tok:   Last token
+ *
+ * Returns zero on success
+ */
+static int
+parse_skip_to_endif(struct gup_state *state, struct token *tok)
+{
+    if (state == NULL || tok == NULL) {
+        return -1;
+    }
+
+    while (tok->type != TT_ENDIF) {
+        if (parse_scan(state, tok) < 0) {
+            ueof(state);
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+/*
+ * Parse an '#ifdef' directive
+ *
+ * @state: Compiler state
+ * @tok:   Last token
+ *
+ * Returns zero on success
+ */
+static int
+parse_ifdef(struct gup_state *state, struct token *tok)
+{
+    struct symbol *symbol;
+
+    if (state == NULL || tok == NULL) {
+        return -1;
+    }
+
+    if (tok->type != TT_IFDEF) {
+        return -1;
+    }
+
+    /* EXPECT <IDENT> */
+    if (parse_expect(state, tok, TT_IDENT) < 0) {
+        return -1;
+    }
+
+    symbol = symbol_from_name(&state->symtab, tok->s);
+    if (symbol == NULL) {
+        parse_skip_to_endif(state, tok);
+    }
+
+    return 0;
+}
+
+/*
  * Used during the preprocessor stage to take in tokens
  * and look for directives
  */
@@ -195,6 +254,14 @@ parse_preprocess(struct gup_state *state, struct token *tok)
             return -1;
         }
         break;
+    case TT_IFDEF:
+        if (parse_ifdef(state, tok) < 0) {
+            return -1;
+        }
+
+        break;
+    case TT_ENDIF:
+        /* Ignored : TODO handle checking of previous #ifxx */
     case TT_NEWLINE:
         /* Ignored */
         break;
