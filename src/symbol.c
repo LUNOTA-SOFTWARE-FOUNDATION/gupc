@@ -68,6 +68,28 @@ symbol_new(struct symbol_table *table, const char *name, symbol_type_t type,
     return 0;
 }
 
+struct symbol *
+symbol_from_name(struct symbol_table *table, const char *name)
+{
+    struct symbol *symbol;
+
+    if (table == NULL || name == NULL) {
+        return NULL;
+    }
+
+    TAILQ_FOREACH(symbol, &table->entries, link) {
+        if (*symbol->name != *name) {
+            continue;
+        }
+
+        if (strcmp(symbol->name, name) == 0) {
+            return symbol;
+        }
+    }
+
+    return NULL;
+}
+
 void
 symbol_table_destroy(struct symbol_table *table)
 {
