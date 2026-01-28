@@ -24,7 +24,6 @@ static inline bool
 lexer_is_ws(char c)
 {
     switch (c) {
-    case '\n':
     case '\r':
     case '\t':
     case ' ':
@@ -231,6 +230,10 @@ lexer_scan(struct gup_state *state, struct token *res)
     }
 
     switch (c) {
+    case '\n':
+        res->type = TT_NEWLINE;
+        res->c = c;
+        return 0;
     case '+':
         res->type = TT_PLUS;
         res->c = c;

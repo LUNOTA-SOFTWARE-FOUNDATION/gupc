@@ -52,6 +52,7 @@
 
 static const char *toktab[] = {
     [TT_NONE]     = symtok("none"),
+    [TT_NEWLINE]  = symtok("newline"),
     [TT_IDENT]    = symtok("ident"),
     [TT_DEFINE]   = qtok("#define"),
     [TT_PLUS]     = qtok("+"),
@@ -155,6 +156,11 @@ parse_define(struct gup_state *state, struct token *tok)
         return -1;
     }
 
+    /* EXPECT '\n' : TODO [buffer tokens within symbol] */
+    if (parse_expect(state, tok, TT_NEWLINE) < 0) {
+        return -1;
+    }
+
     return 0;
 }
 
@@ -174,6 +180,9 @@ parse_preprocess(struct gup_state *state, struct token *tok)
         if (parse_define(state, tok) < 0) {
             return -1;
         }
+        break;
+    case TT_NEWLINE:
+        /* Ignored */
         break;
     default:
         if (tokbuf_push(&state->tokbuf, tok) < 0)
