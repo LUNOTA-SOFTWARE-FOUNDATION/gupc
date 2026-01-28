@@ -66,6 +66,7 @@ static const char *toktab[] = {
     [TT_RPAREN]   = qtok(")"),
     [TT_LBRACE]   = qtok("{"),
     [TT_RBRACE]   = qtok("}"),
+    [TT_PUB]      = qtok("pub"),
     [TT_PROC]     = qtok("proc"),
     [TT_VOID]     = qtok("void")
 };
