@@ -24,6 +24,7 @@ typedef enum {
     TT_LT,          /* '<' */
     TT_GTE,         /* '>=' */
     TT_LTE,         /* '<=' */
+    TT_VOID,        /* 'void' */
 } tt_t;
 
 struct token {
