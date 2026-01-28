@@ -54,6 +54,8 @@ static const char *toktab[] = {
     [TT_LT]       = qtok("<"),
     [TT_GTE]      = qtok(">="),
     [TT_LTE]      = qtok("<="),
+    [TT_LPAREN]   = qtok("("),
+    [TT_RPAREN]   = qtok(")"),
     [TT_VOID]     = qtok("void")
 };
 
