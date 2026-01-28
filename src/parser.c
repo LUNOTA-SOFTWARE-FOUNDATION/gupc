@@ -10,6 +10,7 @@
 #include "gup/parser.h"
 #include "gup/trace.h"
 #include "gup/symbol.h"
+#include "gup/types.h"
 
 /* Convert token to string */
 #define tokstr1(type) \
@@ -415,8 +416,13 @@ parse_proc(struct gup_state *state, struct token *tok)
         return -1;
     }
 
-    /* EXPECT 'void' : TODO: ALLOW DIFFERENT TYPES */
-    if (parse_expect(state, tok, TT_VOID) < 0) {
+    if (parse_scan(state, tok) < 0) {
+        ueof(state);
+        return -1;
+    }
+
+    if (tok_to_type(tok->type) == GUP_TYPE_BAD) {
+        utok(state, symtok("type"), tokstr(tok));
         return -1;
     }
 
