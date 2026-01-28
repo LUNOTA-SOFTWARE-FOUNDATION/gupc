@@ -88,11 +88,27 @@ static const char *toktab[] = {
 static int
 parse_scan(struct gup_state *state, struct token *tok)
 {
+    struct token *popped;
+
     if (state == NULL || tok == NULL) {
         return -1;
     }
 
-    return lexer_scan(state, tok);
+    switch (state->cur_pass) {
+    case 0:
+        return lexer_scan(state, tok);
+    case 1:
+        popped = tokbuf_pop(&state->tokbuf);
+        if (popped == NULL) {
+            ueof(state);
+            return -1;
+        }
+
+        *tok = *popped;
+        return 0;
+    }
+
+    return -1;
 }
 
 /*
@@ -107,29 +123,13 @@ parse_scan(struct gup_state *state, struct token *tok)
 static int
 parse_expect(struct gup_state *state, struct token *tok, tt_t what)
 {
-    struct token *popped;
-
     if (state == NULL || tok == NULL) {
         return -1;
     }
 
-    switch (state->cur_pass) {
-    case 0:
-        if (parse_scan(state, tok) < 0) {
-            ueof(state);
-            return -1;
-        }
-
-        break;
-    case 1:
-        popped = tokbuf_pop(&state->tokbuf);
-        if (popped == NULL) {
-            ueof(state);
-            return -1;
-        }
-
-        *tok = *popped;
-        break;
+    if (parse_scan(state, tok) < 0) {
+        ueof(state);
+        return -1;
     }
 
     if (tok->type != what) {
