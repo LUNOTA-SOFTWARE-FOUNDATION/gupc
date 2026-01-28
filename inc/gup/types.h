@@ -20,6 +20,15 @@ typedef enum {
 } gup_type_t;
 
 /*
+ * Represents a valid data type
+ *
+ * @type: Data type class
+ */
+struct data_type {
+    gup_type_t type;
+};
+
+/*
  * Convert a token type into a program type
  *
  * @tt: Token type to convert
