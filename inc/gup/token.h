@@ -26,6 +26,8 @@ typedef enum {
     TT_LTE,         /* '<=' */
     TT_LPAREN,      /* '(' */
     TT_RPAREN,      /* ')' */
+    TT_LBRACE,      /* '{' */
+    TT_RBRACE,      /* '}' */
     TT_VOID,        /* 'void' */
 } tt_t;
 
