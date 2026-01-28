@@ -10,6 +10,7 @@
 #include "gup/parser.h"
 #include "gup/trace.h"
 #include "gup/symbol.h"
+#include "gup/scope.h"
 #include "gup/types.h"
 
 /* Convert token to string */
@@ -391,6 +392,10 @@ parse_curate(struct gup_state *state)
 static int
 parse_proc(struct gup_state *state, struct token *tok)
 {
+    gup_type_t type;
+    struct symbol *symbol;
+    int error;
+
     if (state == NULL || tok == NULL) {
         return -1;
     }
@@ -401,6 +406,18 @@ parse_proc(struct gup_state *state, struct token *tok)
 
     /* EXPECT <IDENT> */
     if (parse_expect(state, tok, TT_IDENT) < 0) {
+        return -1;
+    }
+
+    error = symbol_new(
+        &state->symtab,
+        tok->s,
+        SYMBOL_FUNC,
+        &symbol
+    );
+
+    if (error < 0) {
+        trace_error(state, "failed to allocate symbol\n");
         return -1;
     }
 
@@ -429,16 +446,54 @@ parse_proc(struct gup_state *state, struct token *tok)
         return -1;
     }
 
-    if (tok_to_type(tok->type) == GUP_TYPE_BAD) {
+    if ((type = tok_to_type(tok->type)) == GUP_TYPE_BAD) {
         utok(state, symtok("type"), tokstr(tok));
         return -1;
     }
 
-    /* EXPECT ';' : TODO: ALLOW BODY */
-    if (parse_expect(state, tok, TT_SEMI) < 0) {
+    symbol->dtype.type = type;
+    if (parse_scan(state, tok) < 0) {
         return -1;
     }
 
+    /* EXPECT ';' OR '{' */
+    switch (tok->type) {
+    case TT_SEMI:
+        return 0;
+    case TT_LBRACE:
+        if (scope_push(state, TT_PROC) < 0) {
+            return -1;
+        }
+
+        break;
+    default:
+        utok1(state, tok);
+        return -1;
+    }
+
+    return 0;
+}
+
+/*
+ * Parse an RBRACE token
+ *
+ * @state: Compiler state
+ * @tok:   Last token
+ *
+ * Returns zero on success
+ */
+static int
+parse_rbrace(struct gup_state *state, struct token *tok)
+{
+    if (state == NULL || tok == NULL) {
+        return -1;
+    }
+
+    if (tok->type != TT_RBRACE) {
+        return -1;
+    }
+
+    scope_pop(state);
     return 0;
 }
 
@@ -466,6 +521,22 @@ parse_begin(struct gup_state *state, struct token *tok)
         break;
     case TT_PUB:
         /* Modifier */
+        break;
+    case TT_RBRACE:
+        if (state->scope_depth == 0) {
+            trace_error(
+                state,
+                "got unexpected %s\n",
+                qtok("}")
+            );
+
+            return -1;
+        }
+
+        if (parse_rbrace(state, tok) < 0) {
+            return -1;
+        }
+
         break;
     default:
         utok1(state, tok);
@@ -499,6 +570,16 @@ parse_loop(struct gup_state *state)
         if (parse_begin(state, tok) < 0) {
             return -1;
         }
+    }
+
+    if (state->scope_depth > 0) {
+        trace_error(
+            state,
+            "unexpected eof, missing matching %s?\n",
+            qtok("}")
+        );
+
+        return -1;
     }
 
     return 0;
