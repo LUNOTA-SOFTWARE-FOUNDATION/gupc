@@ -34,6 +34,14 @@
         "unexpected end of file\n"  \
     )
 
+#define utok1(state, tok)        \
+    trace_error(                 \
+        (state),                 \
+        "unexpected token %s\n", \
+        tokstr(tok)              \
+    )
+
+/* Unexpected token */
 #define utok(state, exp, got)               \
     trace_error(                            \
         (state),                            \
