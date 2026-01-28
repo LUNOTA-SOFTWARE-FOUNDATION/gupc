@@ -6,6 +6,7 @@
 #ifndef GUP_TOKBUF_H
 #define GUP_TOKBUF_H 1
 
+#include <sys/types.h>
 #include <stdint.h>
 #include <stddef.h>
 #include "gup/token.h"
