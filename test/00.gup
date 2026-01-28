@@ -1,0 +1,4 @@
+#define FOO
+
+pub proc main(void) -> void {
+}
