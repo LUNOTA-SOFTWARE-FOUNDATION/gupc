@@ -60,6 +60,12 @@ compile(const char *path)
         return;
     }
 
+    /* Pass 1 */
+    if (gup_parse(&state) < 0) {
+        gup_state_destroy(&state);
+        return;
+    }
+
     gup_state_destroy(&state);
 }
 

@@ -174,7 +174,6 @@ parse_preprocess(struct gup_state *state, struct token *tok)
         }
         break;
     default:
-        printf("got token %s\n", tokstr(&state->last_tok));
         if (tokbuf_push(&state->tokbuf, tok) < 0)
             return -1;
 
@@ -194,11 +193,61 @@ parse_preprocess(struct gup_state *state, struct token *tok)
 static int
 parse_curate(struct gup_state *state)
 {
+    struct token tok;
     int error;
 
-    while (lexer_scan(state, &state->last_tok) == 0) {
-        error = parse_preprocess(state, &state->last_tok);
+    while (lexer_scan(state, &tok) == 0) {
+        error = parse_preprocess(state, &tok);
         if (error != 0) {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+/*
+ * Begin parsing tokens
+ *
+ * @state: Compiler state
+ * @tok:   Most recent token
+ *
+ * Returns zero on success
+ */
+static int
+parse_begin(struct gup_state *state, struct token *tok)
+{
+    if (state == NULL || tok == NULL) {
+        return -1;
+    }
+
+    printf("got token %s\n", tokstr(tok));
+    return 0;
+}
+
+/*
+ * Main parse loop
+ *
+ * @state: Compiler state
+ *
+ * Returns zero on success
+ */
+static int
+parse_loop(struct gup_state *state)
+{
+    struct token *tok;
+
+    if (state == NULL) {
+        return -1;
+    }
+
+    for (;;) {
+        tok = tokbuf_pop(&state->tokbuf);
+        if (tok == NULL) {
+            break;
+        }
+
+        if (parse_begin(state, tok) < 0) {
             return -1;
         }
     }
@@ -219,6 +268,10 @@ gup_parse(struct gup_state *state)
     case 0:
         /* Preprocessor pass */
         retval = parse_curate(state);
+        break;
+    case 1:
+        /* Parsing pass */
+        retval = parse_loop(state);
         break;
     }
 

@@ -19,7 +19,6 @@
  * @cur_pass:   Current compiler pass (0-based)
  * @line_num:   Current line number
  * @putback:    Lexer putback buffer
- * @last_tok:   Last token
  * @tokbuf:     Parser token buffer
  * @ptrbox:     Global pointer box
  * @symtab:     Global symbol table
@@ -29,7 +28,6 @@ struct gup_state {
     uint8_t cur_pass;
     size_t line_num;
     char putback;
-    struct token last_tok;
     struct tokbuf tokbuf;
     struct ptrbox ptrbox;
     struct symbol_table symtab;
