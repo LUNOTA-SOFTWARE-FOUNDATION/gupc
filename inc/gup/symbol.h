@@ -75,6 +75,17 @@ int symbol_table_init(struct symbol_table *table);
 struct symbol *symbol_from_name(struct symbol_table *table, const char *name);
 
 /*
+ * Lookup a symbol using its ID
+ *
+ * @table: Symbol table to look up from
+ * @id:    Symbol ID to lookup
+ *
+ * Returns the symbol on success, otherwise a value of NULL
+ * on failure or entry not found.
+ */
+struct symbol *symbol_from_id(struct symbol_table *table, symid_t id);
+
+/*
  * Allocate a new symbol
  *
  * @table: Symbol table to allocate to

@@ -90,6 +90,26 @@ symbol_from_name(struct symbol_table *table, const char *name)
     return NULL;
 }
 
+struct symbol *
+symbol_from_id(struct symbol_table *table, symid_t id)
+{
+    struct symbol *symbol;
+
+    if (table == NULL) {
+        return NULL;
+    }
+
+    TAILQ_FOREACH(symbol, &table->entries, link) {
+        if (symbol->id != id) {
+            continue;
+        }
+
+        return symbol;
+    }
+
+    return NULL;
+}
+
 void
 symbol_table_destroy(struct symbol_table *table)
 {
