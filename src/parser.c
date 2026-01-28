@@ -240,6 +240,40 @@ parse_ifdef(struct gup_state *state, struct token *tok)
 }
 
 /*
+ * Parse an '#ifndef' directive
+ *
+ * @state: Compiler state
+ * @tok:   Last token
+ *
+ * Returns zero on success
+ */
+static int
+parse_ifndef(struct gup_state *state, struct token *tok)
+{
+    struct symbol *symbol;
+
+    if (state == NULL || tok == NULL) {
+        return -1;
+    }
+
+    if (tok->type != TT_IFNDEF) {
+        return -1;
+    }
+
+    /* EXPECT <IDENT> */
+    if (parse_expect(state, tok, TT_IDENT) < 0) {
+        return -1;
+    }
+
+    symbol = symbol_from_name(&state->symtab, tok->s);
+    if (symbol != NULL) {
+        parse_skip_to_endif(state, tok);
+    }
+
+    return 0;
+}
+
+/*
  * Used during the preprocessor stage to take in tokens
  * and look for directives
  */
@@ -259,6 +293,13 @@ parse_preprocess(struct gup_state *state, struct token *tok)
     case TT_IFDEF:
         ++state->ifx_depth;
         if (parse_ifdef(state, tok) < 0) {
+            return -1;
+        }
+
+        break;
+    case TT_IFNDEF:
+        ++state->ifx_depth;
+        if (parse_ifndef(state, tok) < 0) {
             return -1;
         }
 
