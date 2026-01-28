@@ -58,6 +58,17 @@ int tokbuf_push(struct tokbuf *buf, struct token *tok);
 struct token *tokbuf_pop(struct tokbuf *buf);
 
 /*
+ * Lookbehind the current token buffer position with n steps
+ *
+ * @buf: Buffer to lookbehind
+ * @n:   Number of steps to lookbehind
+ *
+ * Returns token that is n steps away from the current position,
+ * otherwise NULL on failure.
+ */
+struct token *tokbuf_lookbehind(struct tokbuf *buf, off_t n);
+
+/*
  * Destroy a token buffer
  *
  * @buf: Token buffer to destroy

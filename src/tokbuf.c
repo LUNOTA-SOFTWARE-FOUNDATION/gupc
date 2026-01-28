@@ -70,6 +70,27 @@ tokbuf_pop(struct tokbuf *buf)
     return &buf->ring[buf->tail++];
 }
 
+struct token *
+tokbuf_lookbehind(struct tokbuf *buf, off_t n)
+{
+    off_t index;
+
+    if (buf == NULL) {
+        return NULL;
+    }
+
+    if (n == 0) {
+        return &buf->ring[buf->tail - 1];
+    }
+
+    index = (off_t)buf->tail - n - 1;
+    if (index < 0) {
+        index = buf->head - n;
+    }
+
+    return &buf->ring[index];
+}
+
 void
 tokbuf_destroy(struct tokbuf *buf)
 {
