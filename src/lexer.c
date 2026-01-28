@@ -198,6 +198,13 @@ lexer_check_kw(struct token *tok)
         }
 
         break;
+    case 'p':
+        if (strcmp(tok->s, "proc") == 0) {
+            tok->type = TT_PROC;
+            return 0;
+        }
+
+        break;
     }
 
     return -1;
