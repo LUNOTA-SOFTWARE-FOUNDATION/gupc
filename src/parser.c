@@ -200,6 +200,7 @@ parse_skip_to_endif(struct gup_state *state, struct token *tok)
         }
     }
 
+    --state->ifx_depth;
     return 0;
 }
 
@@ -255,13 +256,24 @@ parse_preprocess(struct gup_state *state, struct token *tok)
         }
         break;
     case TT_IFDEF:
+        ++state->ifx_depth;
         if (parse_ifdef(state, tok) < 0) {
             return -1;
         }
 
         break;
     case TT_ENDIF:
-        /* Ignored : TODO handle checking of previous #ifxx */
+        if (state->ifx_depth == 0) {
+            trace_error(
+                state,
+                "got #endif without previous #if directive\n"
+            );
+
+            return -1;
+        }
+
+        --state->ifx_depth;
+        break;
     case TT_NEWLINE:
         /* Ignored */
         break;
@@ -293,6 +305,15 @@ parse_curate(struct gup_state *state)
         if (error != 0) {
             return -1;
         }
+    }
+
+    if (state->ifx_depth > 0) {
+        trace_error(
+            state,
+            "missing #endif after #if type directive\n"
+        );
+
+        return -1;
     }
 
     return 0;

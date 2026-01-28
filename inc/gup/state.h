@@ -18,6 +18,7 @@
  * @in_fd:      Input file descriptor
  * @cur_pass:   Current compiler pass (0-based)
  * @line_num:   Current line number
+ * @ifx_depth:  #IFXXX directive depth
  * @putback:    Lexer putback buffer
  * @tokbuf:     Parser token buffer
  * @ptrbox:     Global pointer box
@@ -27,6 +28,7 @@ struct gup_state {
     int in_fd;
     uint8_t cur_pass;
     size_t line_num;
+    size_t ifx_depth;
     char putback;
     struct tokbuf tokbuf;
     struct ptrbox ptrbox;
