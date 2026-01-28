@@ -187,7 +187,7 @@ lexer_check_kw(struct token *tok)
     case '#':
         if (strcmp(tok->s, "#define") == 0) {
             tok->type = TT_DEFINE;
-            return -1;
+            return 0;
         }
 
         break;
