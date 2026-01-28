@@ -130,6 +130,7 @@ parse_expect(struct gup_state *state, struct token *tok, tt_t what)
 static int
 parse_define(struct gup_state *state, struct token *tok)
 {
+    struct symbol *macro;
     int error;
 
     if (state == NULL || tok == NULL) {
@@ -149,16 +150,27 @@ parse_define(struct gup_state *state, struct token *tok)
         &state->symtab,
         tok->s,
         SYMBOL_MACRO,
-        NULL
+        &macro
     );
 
     if (error < 0) {
         return -1;
     }
 
-    /* EXPECT '\n' : TODO [buffer tokens within symbol] */
-    if (parse_expect(state, tok, TT_NEWLINE) < 0) {
+    if (parse_scan(state, tok) < 0) {
+        ueof(state);
         return -1;
+    }
+
+    while (tok->type != TT_NEWLINE) {
+        if (tokbuf_push(&macro->mactok, tok) < 0) {
+            return -1;
+        }
+
+        if (parse_scan(state, tok) < 0) {
+            ueof(state);
+            return -1;
+        }
     }
 
     return 0;
