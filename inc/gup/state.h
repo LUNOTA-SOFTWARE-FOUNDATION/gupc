@@ -6,6 +6,7 @@
 #ifndef GUP_STATE_H
 #define GUP_STATE_H 1
 
+#include <stdio.h>
 #include <stdint.h>
 #include "gup/token.h"
 #include "gup/tokbuf.h"
@@ -19,6 +20,7 @@
  * Represents the compiler state
  *
  * @in_fd:      Input file descriptor
+ * @out_fp:     Output file pointer
  * @cur_pass:   Current compiler pass (0-based)
  * @line_num:   Current line number
  * @ifx_depth:  #IFXXX directive depth
@@ -31,6 +33,7 @@
  */
 struct gup_state {
     int in_fd;
+    FILE *out_fp;
     uint8_t cur_pass;
     size_t line_num;
     size_t ifx_depth;

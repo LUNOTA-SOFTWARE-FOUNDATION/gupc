@@ -36,9 +36,17 @@ gup_state_init(struct gup_state *res, const char *in_path, const char *out_path)
         return -1;
     }
 
+    res->out_fp = fopen(out_path, "w");
+    if (res->out_fp == NULL) {
+        tokbuf_destroy(&res->tokbuf);
+        symbol_table_destroy(&res->symtab);
+        return -1;
+    }
+
     if (ptrbox_init(&res->ptrbox) < 0) {
         tokbuf_destroy(&res->tokbuf);
         symbol_table_destroy(&res->symtab);
+        fclose(res->out_fp);
         return -1;
     }
 
@@ -47,6 +55,7 @@ gup_state_init(struct gup_state *res, const char *in_path, const char *out_path)
         tokbuf_destroy(&res->tokbuf);
         ptrbox_destroy(&res->ptrbox);
         symbol_table_destroy(&res->symtab);
+        fclose(res->out_fp);
         return -1;
     }
 
@@ -65,4 +74,5 @@ gup_state_destroy(struct gup_state *state)
     tokbuf_destroy(&state->tokbuf);
     ptrbox_destroy(&state->ptrbox);
     symbol_table_destroy(&state->symtab);
+    fclose(state->out_fp);
 }
