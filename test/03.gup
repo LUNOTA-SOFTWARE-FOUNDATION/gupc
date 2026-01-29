@@ -1,0 +1,9 @@
+#ifndef TYPE
+pub proc func(void) -> void {
+}
+#endif
+
+#ifdef TYPE
+pub proc func_macro(void) TYPE void {
+}
+#endif
