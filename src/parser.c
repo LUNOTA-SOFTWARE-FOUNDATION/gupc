@@ -11,7 +11,9 @@
 #include "gup/trace.h"
 #include "gup/symbol.h"
 #include "gup/scope.h"
+#include "gup/codegen.h"
 #include "gup/types.h"
+#include "gup/ast.h"
 
 /* Convert token to string */
 #define tokstr1(type) \
@@ -386,12 +388,14 @@ parse_curate(struct gup_state *state)
  *
  * @state: Compiler state
  * @tok:   Last token
+ * @res:   AST node result
  *
  * Returns zero on success
  */
 static int
-parse_proc(struct gup_state *state, struct token *tok)
+parse_proc(struct gup_state *state, struct token *tok, struct ast_node **res)
 {
+    struct ast_node *root;
     gup_type_t type;
     struct symbol *symbol;
     int error;
@@ -465,6 +469,13 @@ parse_proc(struct gup_state *state, struct token *tok)
             return -1;
         }
 
+        if (ast_node_allocate(state, AST_PROC, &root) < 0) {
+            trace_error(state, "failed to allocate AST_PROC\n");
+            return -1;
+        }
+
+        root->symid = symbol->id;
+        *res = root;
         break;
     default:
         utok1(state, tok);
@@ -508,13 +519,15 @@ parse_rbrace(struct gup_state *state, struct token *tok)
 static int
 parse_begin(struct gup_state *state, struct token *tok)
 {
+    struct ast_node *root = NULL;
+
     if (state == NULL || tok == NULL) {
         return -1;
     }
 
     switch (tok->type) {
     case TT_PROC:
-        if (parse_proc(state, tok) < 0) {
+        if (parse_proc(state, tok, &root) < 0) {
             return -1;
         }
 
@@ -542,6 +555,12 @@ parse_begin(struct gup_state *state, struct token *tok)
         utok1(state, tok);
         return -1;
     }
+
+    if (root != NULL) {
+        if (cg_resolve_node(state, root) < 0)
+            return -1;
+    }
+
     return 0;
 }
 

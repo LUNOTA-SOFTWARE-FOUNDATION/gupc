@@ -6,6 +6,7 @@
 #ifndef GUP_AST_H
 #define GUP_AST_H 1
 
+#include "gup/symbol.h"
 #include "gup/state.h"
 
 /*
@@ -30,6 +31,9 @@ struct ast_node {
     ast_type_t type;
     struct ast_node *left;
     struct ast_node *right;
+    union {
+        symid_t symid;
+    };
 };
 
 /*
