@@ -31,3 +31,19 @@ mu_emit_label(struct gup_state *state, const char *label, bool global)
 
     return 0;
 }
+
+int
+mu_emit_ret(struct gup_state *state)
+{
+    if (state == NULL) {
+        errno = -EINVAL;
+        return -1;
+    }
+
+    fprintf(
+        state->out_fp,
+        "\tret\n"
+    );
+
+    return 0;
+}

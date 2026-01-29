@@ -20,4 +20,13 @@
  */
 int mu_emit_label(struct gup_state *state, const char *label, bool global);
 
+/*
+ * Emit a return
+ *
+ * @state: Compiler state
+ *
+ * Returns zero on success
+ */
+int mu_emit_ret(struct gup_state *state);
+
 #endif  /* !GUP_MU_H */
