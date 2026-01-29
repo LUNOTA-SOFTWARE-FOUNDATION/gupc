@@ -82,6 +82,30 @@ static const char *toktab[] = {
 };
 
 /*
+ * Check if a symbol is a macro that can be expanded
+ *
+ * @state: Compiler state
+ * @symbol: Symbol to check
+ *
+ * Pops the first token in the macro token buffer and returns
+ * it upon success
+ */
+static inline struct token *
+parse_check_expand(struct gup_state *state, struct symbol *symbol)
+{
+    if (state == NULL || symbol == NULL) {
+        return NULL;
+    }
+
+    if (symbol->type != SYMBOL_MACRO) {
+        return NULL;
+    }
+
+    state->mactoks = &symbol->mactok;
+    return tokbuf_pop(state->mactoks);
+}
+
+/*
  * Parser-side token scan function
  *
  * @state: Compiler state
@@ -92,7 +116,8 @@ static const char *toktab[] = {
 static int
 parse_scan(struct gup_state *state, struct token *tok)
 {
-    struct token *popped;
+    struct symbol *symbol = NULL;
+    struct token *popped, *tmp;
 
     if (state == NULL || tok == NULL) {
         return -1;
@@ -102,10 +127,38 @@ parse_scan(struct gup_state *state, struct token *tok)
     case 0:
         return lexer_scan(state, tok);
     case 1:
-        popped = tokbuf_pop(&state->tokbuf);
+        if (state->mactoks != NULL) {
+            popped = tokbuf_pop(state->mactoks);
+        } else {
+            popped = tokbuf_pop(&state->tokbuf);
+        }
+
+        /*
+         * If we have no more macro tokens, void the macro token
+         * buffer reference and trab a token from our token buffer.
+         */
+        if (popped == NULL && state->mactoks != NULL) {
+            popped = tokbuf_pop(&state->tokbuf);
+            state->mactoks = NULL;
+        }
+
         if (popped == NULL) {
             ueof(state);
             return -1;
+        }
+
+        if (popped->type == TT_IDENT) {
+            symbol = symbol_from_name(
+                &state->symtab,
+                popped->s
+            );
+        }
+
+        /* Is this a macro we should expand? */
+        if (symbol != NULL) {
+            tmp = parse_check_expand(state, symbol);
+            if (tmp != NULL)
+                popped = tmp;
         }
 
         *tok = *popped;

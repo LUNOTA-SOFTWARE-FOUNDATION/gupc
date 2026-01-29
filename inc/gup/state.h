@@ -27,6 +27,7 @@
  * @putback:    Lexer putback buffer
  * @scope_depth: Current scope depth
  * @scope_stack: Used to keep track of scope
+ * @mactoks:    Macro tokens left
  * @tokbuf:     Parser token buffer
  * @ptrbox:     Global pointer box
  * @symtab:     Global symbol table
@@ -40,6 +41,7 @@ struct gup_state {
     char putback;
     uint8_t scope_depth;
     tt_t scope_stack[SCOPE_STACK_MAX];
+    struct tokbuf *mactoks;
     struct tokbuf tokbuf;
     struct ptrbox ptrbox;
     struct symbol_table symtab;
