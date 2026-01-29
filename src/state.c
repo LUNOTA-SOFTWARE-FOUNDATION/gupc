@@ -33,6 +33,7 @@ gup_state_init(struct gup_state *res, const char *in_path, const char *out_path)
 
     if (symbol_table_init(&res->symtab) < 0) {
         tokbuf_destroy(&res->tokbuf);
+        return -1;
     }
 
     if (ptrbox_init(&res->ptrbox) < 0) {
