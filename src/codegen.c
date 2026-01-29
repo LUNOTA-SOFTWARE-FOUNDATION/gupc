@@ -35,7 +35,7 @@ cg_emit_proc(struct gup_state *state, struct ast_node *root)
         return -1;
     }
 
-    return mu_emit_label(state, symbol->name, false);
+    return mu_emit_label(state, symbol->name, symbol->pub);
 }
 
 int

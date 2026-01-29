@@ -395,6 +395,7 @@ parse_curate(struct gup_state *state)
 static int
 parse_proc(struct gup_state *state, struct token *tok, struct ast_node **res)
 {
+    struct token *prevtok;
     struct ast_node *root;
     gup_type_t type;
     struct symbol *symbol;
@@ -405,6 +406,12 @@ parse_proc(struct gup_state *state, struct token *tok, struct ast_node **res)
     }
 
     if (tok->type != TT_PROC) {
+        return -1;
+    }
+
+    prevtok = tokbuf_lookbehind(&state->tokbuf, 1);
+    if (prevtok == NULL) {
+        trace_error(state, "proc lookbehind failure\n");
         return -1;
     }
 
@@ -423,6 +430,11 @@ parse_proc(struct gup_state *state, struct token *tok, struct ast_node **res)
     if (error < 0) {
         trace_error(state, "failed to allocate symbol\n");
         return -1;
+    }
+
+    /* Was the token before 'proc', 'pub'? */
+    if (prevtok->type == TT_PUB) {
+        symbol->pub = 1;
     }
 
     /* EXPECT '(' */

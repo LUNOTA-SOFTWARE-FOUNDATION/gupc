@@ -34,6 +34,7 @@ typedef enum {
  * @name:       Symbol name
  * @type:       Symbol type
  * @id:         Symbol ID
+ * @pub:        If set, is public
  * @dtype:      Data type to lookup
  * @mactok:     Macro tokens
  * @link:       Queue link
@@ -42,6 +43,7 @@ struct symbol {
     char *name;
     symbol_type_t type;
     symid_t id;
+    uint8_t pub : 1;
     struct data_type dtype;
     struct tokbuf mactok;
     TAILQ_ENTRY(symbol) link;
