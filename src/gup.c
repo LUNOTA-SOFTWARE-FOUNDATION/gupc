@@ -11,6 +11,7 @@
 #include "gup/parser.h"
 
 #define GUP_VERSION "0.0.1"
+#define DEFAULT_ASMOUT "gupgen.asm"
 
 /* Output file path */
 static const char *out_path = "a.out";
@@ -48,7 +49,7 @@ compile(const char *path)
         return;
     }
 
-    if (gup_state_init(&state, path, out_path) < 0) {
+    if (gup_state_init(&state, path, DEFAULT_ASMOUT) < 0) {
         printf("fatal: failed to initialize gup state\n");
         perror("gup_state_init");
         return;
