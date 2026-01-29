@@ -23,12 +23,14 @@ typedef enum {
 /*
  * Represents a valid abstract syntax tree node
  *
- * @type:   AST node type
- * @left:   Left node
- * @right:  Right node
+ * @type:       AST node type
+ * @epilogue:   End of block if set
+ * @left:       Left node
+ * @right:      Right node
  */
 struct ast_node {
     ast_type_t type;
+    uint8_t epilogue : 1;
     struct ast_node *left;
     struct ast_node *right;
     union {

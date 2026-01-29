@@ -502,12 +502,16 @@ parse_proc(struct gup_state *state, struct token *tok, struct ast_node **res)
  *
  * @state: Compiler state
  * @tok:   Last token
+ * @res:   AST node result
  *
  * Returns zero on success
  */
 static int
-parse_rbrace(struct gup_state *state, struct token *tok)
+parse_rbrace(struct gup_state *state, struct token *tok, struct ast_node **res)
 {
+    struct ast_node *root;
+    tt_t scope;
+
     if (state == NULL || tok == NULL) {
         return -1;
     }
@@ -516,7 +520,21 @@ parse_rbrace(struct gup_state *state, struct token *tok)
         return -1;
     }
 
-    scope_pop(state);
+    scope = scope_pop(state);
+    switch (scope) {
+    case TT_PROC:
+        if (ast_node_allocate(state, AST_PROC, &root) < 0) {
+            trace_error(state, "failed to allocate AST_PROC\n");
+            return -1;
+        }
+
+        root->epilogue = 1;
+        *res = root;
+        break;
+    default:
+        break;
+    }
+
     return 0;
 }
 
@@ -558,7 +576,7 @@ parse_begin(struct gup_state *state, struct token *tok)
             return -1;
         }
 
-        if (parse_rbrace(state, tok) < 0) {
+        if (parse_rbrace(state, tok, &root) < 0) {
             return -1;
         }
 

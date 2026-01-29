@@ -20,6 +20,7 @@ static int
 cg_emit_proc(struct gup_state *state, struct ast_node *root)
 {
     struct symbol *symbol;
+    int retval;
 
     if (state == NULL || root == NULL) {
         return -1;
@@ -35,7 +36,13 @@ cg_emit_proc(struct gup_state *state, struct ast_node *root)
         return -1;
     }
 
-    return mu_emit_label(state, symbol->name, symbol->pub);
+    if (root->epilogue) {
+        retval = mu_emit_ret(state);
+    } else {
+        retval = mu_emit_label(state, symbol->name, symbol->pub);
+    }
+
+    return retval;
 }
 
 int
